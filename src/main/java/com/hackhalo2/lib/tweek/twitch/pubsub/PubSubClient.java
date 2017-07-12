@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.hackhalo2.lib.tweek.twitch.TweekUtils;
-import com.hackhalo2.lib.tweek.twitch.TwitchEndpoints;
+import com.hackhalo2.lib.tweek.twitch.endpoints.TwitchEndpoints;
 
 public class PubSubClient {
 

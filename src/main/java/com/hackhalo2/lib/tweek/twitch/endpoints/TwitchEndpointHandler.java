@@ -73,6 +73,8 @@ class TwitchEndpointHandler {
 	 * @return 
 	 */
 	protected Optional<Long> getUserIDfromUsername(@NonNull String username) {
+		String request = String.format(TwitchEndpoints.USERS_GET, username);
+		
 		return null; //TODO
 	}
 	
