@@ -1,13 +1,12 @@
 package com.hackhalo2.lib.tweek.oauth;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 public interface IOAuthHandler {
-
-	public IOAuthToken handleRedirectResponse(String authResponse);
 	
-	public URI getRedirectURI() throws URISyntaxException;
+	public String getHandlerKey();
 	
-	public URI getAuthenticationURI(String type, String... scopes) throws URISyntaxException;
+	public OAuthRequest requestPermissions(String... scopes);
+	
+	public String getRedirectURI();
+	
+	public String getAuthenticationURI(OAuthRequest request);
 }

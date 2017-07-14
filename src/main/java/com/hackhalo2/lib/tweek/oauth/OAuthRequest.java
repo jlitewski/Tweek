@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import com.hackhalo2.lib.tweek.twitch.TweekUtils;
+
 public final class OAuthRequest {
 
 	private Set<String> scopes = new HashSet<>();
@@ -14,9 +16,12 @@ public final class OAuthRequest {
 	
 	private final String tokenType;
 	
+	private final String state;
+	
 	public OAuthRequest(String type) {
 		this.tokenID = UUID.randomUUID().toString();
 		this.tokenType = type;
+		this.state = TweekUtils.generateNonce();
 	}
 	
 	public final String getID() {
@@ -25,6 +30,10 @@ public final class OAuthRequest {
 	
 	public final String getType() {
 		return this.tokenType;
+	}
+	
+	public final String getState() {
+		return this.state;
 	}
 	
 	public Collection<String> getScopes() {

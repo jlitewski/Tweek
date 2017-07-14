@@ -1,27 +1,66 @@
 package com.hackhalo2.lib.tweek.twitch.oauth;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
 
 import com.hackhalo2.lib.tweek.oauth.IOAuthHandler;
+import com.hackhalo2.lib.tweek.oauth.IOAuthRedirectHandler;
 import com.hackhalo2.lib.tweek.oauth.IOAuthToken;
 import com.hackhalo2.lib.tweek.oauth.OAuthManager;
+import com.hackhalo2.lib.tweek.oauth.OAuthRequest;
+import com.hackhalo2.lib.tweek.twitch.TweekUtils;
+import com.hackhalo2.lib.tweek.twitch.TwitchScope;
+import com.hackhalo2.lib.tweek.twitch.endpoints.TwitchEndpoints;
 
-public class TwitchOAuthHandler implements IOAuthHandler {
-
-	@Override
-	public URI getRedirectURI() throws URISyntaxException {
-		return new URI(String.format(OAuthManager.serverAddress+"oauth_authorize_twitch", OAuthManager.serverPort));
+public class TwitchOAuthHandler implements IOAuthHandler, IOAuthRedirectHandler {
+	
+	private final String handleKey = "Twitch";
+	
+	private final String redirectKey = "oauth_authorize_twitch";
+	
+	private final String clientID;
+	
+	public TwitchOAuthHandler(String clientID) {
+		this.clientID = clientID;
 	}
 
 	@Override
-	public URI getAuthenticationURI(String type, String... scopes) throws URISyntaxException {
-		// TODO Auto-generated method stub
-		return null;
+	public String getRedirectURI() {
+		return OAuthManager.getRedirectAddress()+this.getRedirectKey();
 	}
 	
 	@Override
-	public IOAuthToken handleRedirectResponse(String authResponse) {
+	public OAuthRequest requestPermissions(String... scopes) {
+		OAuthRequest request = new OAuthRequest(this.handleKey);
+		request.addScopes(scopes);
+		return request;
+		
+	}
+
+	@Override
+	public String getAuthenticationURI(OAuthRequest request) {
+		return String.format("%s/oauth2/authorize?response_type=code&client_id=%s&redirect_uri=%s&scope=%s&state=%s&nonce=%s&force_verify=true",
+				TwitchEndpoints.KRAKEN,
+				this.clientID,
+				this.getRedirectURI(),
+				TwitchScope.formatSpaceSeperated(request.getScopes()),
+				request.getState(),
+				TweekUtils.generateNonce()
+				);
+	}
+
+	@Override
+	public String getHandlerKey() {
+		return this.handleKey;
+	}
+
+	@Override
+	public String getRedirectKey() {
+		return this.redirectKey;
+	}
+
+	@Override
+	public IOAuthToken handleRedirect(OAuthRequest request, Map<String, List<String>> queryParams) {
 		// TODO Auto-generated method stub
 		return null;
 	}

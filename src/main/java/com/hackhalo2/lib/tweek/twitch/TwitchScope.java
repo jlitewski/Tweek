@@ -1,5 +1,7 @@
 package com.hackhalo2.lib.tweek.twitch;
 
+import java.util.Collection;
+
 import org.apache.commons.lang3.StringUtils;
 
 public enum TwitchScope {
@@ -37,5 +39,9 @@ public enum TwitchScope {
 		}
 		
 		return null; //Scope not defined
+	}
+	
+	public static String formatSpaceSeperated(Collection<String> scopes) {
+		return StringUtils.join(scopes, "+");
 	}
 }

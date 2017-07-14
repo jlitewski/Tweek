@@ -1,5 +1,6 @@
 package com.hackhalo2.lib.tweek.twitch;
 
+import com.hackhalo2.lib.tweek.ClientAuthPair;
 import com.hackhalo2.lib.tweek.IClient;
 import com.hackhalo2.lib.tweek.oauth.IOAuthToken;
 
@@ -11,27 +12,12 @@ import com.hackhalo2.lib.tweek.oauth.IOAuthToken;
  */
 public final class TwitchClient implements IClient {
 	
-	private final String cilentID;
-	
-	private final String clientSecret;
+	private final ClientAuthPair auth;
 	
 	private IOAuthToken token;
 	
 	public TwitchClient(String clientID, String clientSecret) {
-		this.cilentID = clientID;
-		this.clientSecret = clientSecret;
-	}
-
-	@Override
-	public String getClientID() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getClientSecret() {
-		// TODO Auto-generated method stub
-		return null;
+		this.auth = new ClientAuthPair(clientID, clientSecret);
 	}
 
 	@Override
@@ -39,7 +25,10 @@ public final class TwitchClient implements IClient {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	
 
+	@Override
+	public ClientAuthPair getClientAuth() {
+		return this.auth;
+	}
+	
 }

@@ -8,6 +8,8 @@ public interface IOAuthToken {
 	
 	public default boolean isTokenExpired() { return false; }
 	
+	public String getID();
+	
 	public String getToken();
 	
 	public String getTokenType();
