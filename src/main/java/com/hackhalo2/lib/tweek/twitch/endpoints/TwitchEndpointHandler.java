@@ -3,6 +3,7 @@ package com.hackhalo2.lib.tweek.twitch.endpoints;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
 
 import com.hackhalo2.lib.tweek.twitch.TwitchScope;
@@ -79,11 +80,13 @@ class TwitchEndpointHandler {
 	}
 	
 	/**
-	 * Helper method to get the TwitchUser Object from a username
+	 * Gets the Twitch User from the supplied Username<br />
+	 * <i>Note: This uses a Twitch Endpoint that was set up to convert V3 usernames to
+	 * V5 User IDs. It may not be available forever.</i>
 	 * @param username The username to get the TwitchUser for
 	 * @return The TwitchUser Object from the username given
 	 */
-	protected Optional<TwitchUser> getUserfromUsername(@NonNull String username) {
+	public Optional<TwitchUser> getUserfromUsername(@NonNull String username) {
 		String requestURL = String.format(TwitchURLEndpoints.USERS_GET, username);
 		TwitchUserList response = this.packets.GET.sendRequest(requestURL, TwitchUserList.class);
 		if(response._total > 1) {
@@ -94,6 +97,30 @@ class TwitchEndpointHandler {
 		}
 		
 		return Optional.ofNullable(response.users[0]);
+	}
+	
+	/**
+	 * Gets a list of Twitch Users from an array of usernames, up to 100 usernames. The rest are discarded.<br />
+	 * <i>Note: This uses a Twitch Endpoint that was set up to convert V3 usernames to
+	 * V5 User IDs. It may not be available forever.</i>
+	 * @param usernames The array of usernames to get
+	 * @return The TwitchUserList Object for the array of usernames
+	 */
+	public Optional<TwitchUserList> getUsersfromUsernames(@NonNull String... usernames) {
+		String users = null;
+		if(usernames.length > 100) {
+			StringBuilder builder = new StringBuilder();
+			for(int i = 0; i < 100; i++) {
+				builder.append(usernames[i]);
+				if(i < 99) builder.append(",");
+			}
+			users = builder.toString();
+		} else users = StringUtils.join(usernames, ",");
+		
+		String requestURL = String.format(TwitchURLEndpoints.USERS_GET, users);
+		TwitchUserList response = this.packets.GET.sendRequest(requestURL, TwitchUserList.class);
+		
+		return Optional.ofNullable(response);
 	}
 	
 	protected Optional<Long> getChannelIDforUsername(@NonNull String username) {
