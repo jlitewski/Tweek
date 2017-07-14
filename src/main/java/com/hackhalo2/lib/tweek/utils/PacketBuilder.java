@@ -1,8 +1,10 @@
 package com.hackhalo2.lib.tweek.utils;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.http.HttpHeaders;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
@@ -11,13 +13,14 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 import com.hackhalo2.lib.tweek.oauth.IOAuthToken;
-import com.hackhalo2.lib.tweek.twitch.endpoints.TwitchEndpoints;
+import com.hackhalo2.lib.tweek.twitch.endpoints.TwitchURLEndpoints;
 
 public final class PacketBuilder {
 	
-	public static final PacketBuilder GENERAL = new PacketBuilder();
+	public static final PacketBuilder GENERAL = new PacketBuilder(null);
 	
 	public final Packet POST;
 	
@@ -29,46 +32,68 @@ public final class PacketBuilder {
 	
 	public final Packet PUT;
 	
-	public PacketBuilder() {
-		this.POST = new Packet(HttpPost.class);
-		this.GET = new Packet(HttpGet.class);
-		this.DELETE = new Packet(HttpDelete.class);
-		this.PATCH = new Packet(HttpPatch.class);
-		this.PUT = new Packet(HttpPut.class);
+	public PacketBuilder(String clientID) {
+		this.POST = new Packet(clientID, HttpPost.class);
+		this.GET = new Packet(clientID, HttpGet.class);
+		this.DELETE = new Packet(clientID, HttpDelete.class);
+		this.PATCH = new Packet(clientID, HttpPatch.class);
+		this.PUT = new Packet(clientID, HttpPut.class);
 	}
 	
 	public final class Packet {
 		
-		private final String apiHeader = String.format("application/vnd.twitchtv.v%d+json", TwitchEndpoints.KRAKEN_VERSION);
+		private final String apiHeader = String.format("application/vnd.twitchtv.v%d+json", TwitchURLEndpoints.KRAKEN_VERSION);
 		
 		final Class<? extends HttpUriRequest> requestClass;
 		
 		private final CloseableHttpClient client = HttpClients.createDefault();
 		
-		private Packet(Class<? extends HttpUriRequest> clazz) {
+		private final String clientID;
+		
+		private Packet(String clientID, Class<? extends HttpUriRequest> clazz) {
+			this.clientID = clientID;
 			this.requestClass = clazz;
 		}
 		
-		public void sendRequest(String url, String clientID) {
-			this.sendRequest(url, clientID, null);
+		public <T> T sendRequest(String url, Class<T> clazz) {
+			byte[] result = this.sendRequestRaw(url, null);
+			return result == null ? null : this.serializeResult(result, clazz);
 		}
 		
-		public void sendRequest(String url, IOAuthToken token) {
-			this.sendRequest(url, null, token);
+		public <T> T sendRequest(String url, Class<T> clazz, IOAuthToken token) {
+			byte[] result = this.sendRequestRaw(url, token);
+			return result == null ? null : this.serializeResult(result, clazz);
 		}
 		
-		public void sendRequest(String url, String clientID, IOAuthToken token) {
+		public byte[] sendRequestRaw(String url, IOAuthToken token) {
+			byte[] data = new byte[0];
 			try {
 				HttpUriRequest request = this.requestClass.getConstructor(String.class).newInstance(url);
 				request.addHeader(HttpHeaders.ACCEPT, this.apiHeader);
-				if(clientID != null) request.addHeader("Client-ID", clientID);
+				if(this.clientID != null) request.addHeader("Client-ID", this.clientID);
 				if(token != null) request.addHeader(HttpHeaders.AUTHORIZATION, "OAuth " + token.getToken());
 				
-				
+				try(CloseableHttpResponse response = this.client.execute(request)) {
+					if(response.getEntity() != null)
+						data = EntityUtils.toByteArray(response.getEntity());
+				} catch (IOException e) {
+					//TODO: Complain and moan
+				}
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+			
+			return data;
+		}
+		
+		private <T> T serializeResult(byte[] result, Class<T> clazz) {
+			try {
+				return TweekUtils.OBJMAP.readValue(result, clazz);
+			} catch(Exception e) {
+				//TODO: Log and bitch
+				return null;
 			}
 		}
 		

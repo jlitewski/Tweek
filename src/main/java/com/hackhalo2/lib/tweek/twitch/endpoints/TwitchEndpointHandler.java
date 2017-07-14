@@ -5,13 +5,24 @@ import java.util.Optional;
 
 import org.eclipse.jdt.annotation.NonNull;
 
-import com.hackhalo2.lib.tweek.twitch.TweekUtils;
 import com.hackhalo2.lib.tweek.twitch.TwitchScope;
+import com.hackhalo2.lib.tweek.twitch.jsonobjects.TwitchUser;
+import com.hackhalo2.lib.tweek.twitch.jsonobjects.TwitchUserList;
+import com.hackhalo2.lib.tweek.utils.PacketBuilder;
+import com.hackhalo2.lib.tweek.utils.TweekUtils;
 
 class TwitchEndpointHandler {
 	
-	protected TwitchEndpointHandler() {
-		
+	private String clientID;
+	protected PacketBuilder packets;
+	
+	protected TwitchEndpointHandler(String clientID) {
+		this.clientID = clientID;
+		this.packets = new PacketBuilder(clientID);
+	}
+	
+	protected String getClientID() {
+		return this.clientID;
 	}
 	
 	/**
@@ -68,14 +79,21 @@ class TwitchEndpointHandler {
 	}
 	
 	/**
-	 * Helper method to get the User ID from a username
-	 * @param username The username to get the ID for
-	 * @return 
+	 * Helper method to get the TwitchUser Object from a username
+	 * @param username The username to get the TwitchUser for
+	 * @return The TwitchUser Object from the username given
 	 */
-	protected Optional<Long> getUserIDfromUsername(@NonNull String username) {
-		String request = String.format(TwitchEndpoints.USERS_GET, username);
+	protected Optional<TwitchUser> getUserfromUsername(@NonNull String username) {
+		String requestURL = String.format(TwitchURLEndpoints.USERS_GET, username);
+		TwitchUserList response = this.packets.GET.sendRequest(requestURL, TwitchUserList.class);
+		if(response._total > 1) {
+			//TODO: Log that there were more than one result
+		} else if(response._total < 1) {
+			//TODO: no users exist, log
+			return Optional.empty();
+		}
 		
-		return null; //TODO
+		return Optional.ofNullable(response.users[0]);
 	}
 	
 	protected Optional<Long> getChannelIDforUsername(@NonNull String username) {

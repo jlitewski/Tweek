@@ -1,4 +1,4 @@
-package com.hackhalo2.lib.tweek.twitch;
+package com.hackhalo2.lib.tweek.utils;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;

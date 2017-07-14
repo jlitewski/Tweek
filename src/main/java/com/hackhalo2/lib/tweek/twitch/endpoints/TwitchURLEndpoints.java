@@ -5,9 +5,9 @@ package com.hackhalo2.lib.tweek.twitch.endpoints;
  * 
  * @author HACKhalo2
  */
-public final class TwitchEndpoints {
+public final class TwitchURLEndpoints {
 	
-	private TwitchEndpoints() { }
+	private TwitchURLEndpoints() { }
 	
 	/**
 	 * The version of the Kraken API to use

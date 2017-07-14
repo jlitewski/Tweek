@@ -10,8 +10,8 @@ import org.eclipse.jetty.websocket.client.WebSocketClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.hackhalo2.lib.tweek.twitch.TweekUtils;
-import com.hackhalo2.lib.tweek.twitch.endpoints.TwitchEndpoints;
+import com.hackhalo2.lib.tweek.twitch.endpoints.TwitchURLEndpoints;
+import com.hackhalo2.lib.tweek.utils.TweekUtils;
 
 public class PubSubClient {
 
@@ -32,7 +32,7 @@ public class PubSubClient {
 	public void channelBitTopic(SubscribeType type, long channelID) {
 		try {
 			this.checkSocket();
-			String request = String.format(TwitchEndpoints.PUBSUB_CHANNEL_BITS, TwitchEndpoints.PUBSUB_VERSION, channelID);
+			String request = String.format(TwitchURLEndpoints.PUBSUB_CHANNEL_BITS, TwitchURLEndpoints.PUBSUB_VERSION, channelID);
 			JsonNode node = this.generateJson(type, request);
 
 			//null means that we either already are listening to a topic we tried to listen to, or are not listening to a topic we tried to unlisten
@@ -53,7 +53,7 @@ public class PubSubClient {
 	public void channelSubscribeTopic(SubscribeType type, long channelID) {
 		try {
 			this.checkSocket();
-			String request = String.format(TwitchEndpoints.PUBSUB_CHANNEL_SUB, TwitchEndpoints.PUBSUB_VERSION, channelID);
+			String request = String.format(TwitchURLEndpoints.PUBSUB_CHANNEL_SUB, TwitchURLEndpoints.PUBSUB_VERSION, channelID);
 			JsonNode node = this.generateJson(type, request);
 
 			//null means that we either already are listening to a topic we tried to listen to, or are not listening to a topic we tried to unlisten
@@ -74,7 +74,7 @@ public class PubSubClient {
 	public void channelCommerceTopic(SubscribeType type, long channelID) {
 		try {
 			this.checkSocket();
-			String request = String.format(TwitchEndpoints.PUBSUB_CHANNEL_COMMERCE, TwitchEndpoints.PUBSUB_VERSION, channelID);
+			String request = String.format(TwitchURLEndpoints.PUBSUB_CHANNEL_COMMERCE, TwitchURLEndpoints.PUBSUB_VERSION, channelID);
 			JsonNode node = this.generateJson(type, request);
 
 			//null means that we either already are listening to a topic we tried to listen to, or are not listening to a topic we tried to unlisten
@@ -95,7 +95,7 @@ public class PubSubClient {
 	public void userWhisperTopic(SubscribeType type, long userID) {
 		try {
 			this.checkSocket();
-			String request = String.format(TwitchEndpoints.PUBSUB_USER_WHISPER, TwitchEndpoints.PUBSUB_VERSION, userID);
+			String request = String.format(TwitchURLEndpoints.PUBSUB_USER_WHISPER, TwitchURLEndpoints.PUBSUB_VERSION, userID);
 			JsonNode node = this.generateJson(type, request);
 
 			//null means that we either already are listening to a topic we tried to listen to, or are not listening to a topic we tried to unlisten
@@ -115,7 +115,7 @@ public class PubSubClient {
 
 		if(!this.socket.isConnected() || this.socket.shouldReconnect()) { //If the socket isn't connected
 			ClientUpgradeRequest upgrade = new ClientUpgradeRequest();
-			this.wsc.connect(this.socket, new URI(TwitchEndpoints.PUBSUB), upgrade);
+			this.wsc.connect(this.socket, new URI(TwitchURLEndpoints.PUBSUB), upgrade);
 			this.socket.getLatch().await(); //wait for things to synchronize
 		}
 	}

@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import com.hackhalo2.lib.tweek.twitch.TweekUtils;
+import com.hackhalo2.lib.tweek.utils.TweekUtils;
 
 public final class OAuthRequest {
 

@@ -8,9 +8,9 @@ import com.hackhalo2.lib.tweek.oauth.IOAuthRedirectHandler;
 import com.hackhalo2.lib.tweek.oauth.IOAuthToken;
 import com.hackhalo2.lib.tweek.oauth.OAuthManager;
 import com.hackhalo2.lib.tweek.oauth.OAuthRequest;
-import com.hackhalo2.lib.tweek.twitch.TweekUtils;
 import com.hackhalo2.lib.tweek.twitch.TwitchScope;
-import com.hackhalo2.lib.tweek.twitch.endpoints.TwitchEndpoints;
+import com.hackhalo2.lib.tweek.twitch.endpoints.TwitchURLEndpoints;
+import com.hackhalo2.lib.tweek.utils.TweekUtils;
 
 public class TwitchOAuthHandler implements IOAuthHandler, IOAuthRedirectHandler {
 	
@@ -40,7 +40,7 @@ public class TwitchOAuthHandler implements IOAuthHandler, IOAuthRedirectHandler 
 	@Override
 	public String getAuthenticationURI(OAuthRequest request) {
 		return String.format("%s/oauth2/authorize?response_type=code&client_id=%s&redirect_uri=%s&scope=%s&state=%s&nonce=%s&force_verify=true",
-				TwitchEndpoints.KRAKEN,
+				TwitchURLEndpoints.KRAKEN,
 				this.clientID,
 				this.getRedirectURI(),
 				TwitchScope.formatSpaceSeperated(request.getScopes()),

@@ -12,7 +12,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.hackhalo2.lib.tweek.twitch.TweekUtils;
+import com.hackhalo2.lib.tweek.utils.TweekUtils;
 
 @WebSocket
 public class PubSubClientSocket {
