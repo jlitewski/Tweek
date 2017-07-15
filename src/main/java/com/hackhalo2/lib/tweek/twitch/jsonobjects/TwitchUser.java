@@ -7,19 +7,51 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TwitchUser {
 	
-	public long _id;
+	private long _id;
 	
-	public String name;
+	private String name;
 	
-	public String display_name;
+	private String display_name;
 	
-	public String type;
+	private String type;
 	
-	public String bio;
+	private String bio;
 	
-	public String logo;
+	private String logo;
 	
-	public Date created_at;
+	private Date created_at;
 	
-	public Date updated_at;
+	private Date updated_at;
+	
+	public long getID() {
+		return this._id;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public String getDisplayName() {
+		return this.display_name;
+	}
+	
+	public String getType() {
+		return this.type;
+	}
+	
+	public String getBio() {
+		return this.bio;
+	}
+	
+	public String getLogo() {
+		return this.logo;
+	}
+	
+	public Date getCreatedDate() {
+		return this.created_at;
+	}
+	
+	public Date getUpdatedDate() {
+		return this.updated_at;
+	}
 }

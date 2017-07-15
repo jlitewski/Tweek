@@ -96,7 +96,7 @@ class TwitchEndpointHandler {
 			return Optional.empty();
 		}
 		
-		return Optional.ofNullable(response.users[0]);
+		return response.getUserAtIndex(0);
 	}
 	
 	/**
