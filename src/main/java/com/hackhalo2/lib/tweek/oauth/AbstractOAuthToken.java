@@ -1,5 +1,6 @@
 package com.hackhalo2.lib.tweek.oauth;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractOAuthToken implements IOAuthToken {
@@ -7,9 +8,13 @@ public abstract class AbstractOAuthToken implements IOAuthToken {
 	private final String id;
 	private final List<String> scopes;
 	
-	protected AbstractOAuthToken(OAuthRequest request, List<String> scopes) {
+	protected AbstractOAuthToken(OAuthRequest request, String... inScopes) {
 		this.id = request.getID();
-		this.scopes = scopes;
+		this.scopes = new ArrayList<>();
+		
+		for(String scope : inScopes) {
+			this.scopes.add(scope.toLowerCase());
+		}
 	}
 
 	@Override
@@ -23,8 +28,8 @@ public abstract class AbstractOAuthToken implements IOAuthToken {
 	}
 
 	@Override
-	public boolean tokenHasScope(String scope) {
-		return this.scopes.contains(scope);
+	public boolean hasScope(String scope) {
+		return this.scopes.contains(scope.toLowerCase());
 	}
 
 }

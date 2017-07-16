@@ -16,6 +16,6 @@ public interface IOAuthToken {
 	
 	public List<String> getScopes();
 	
-	public boolean tokenHasScope(String scope);
+	public boolean hasScope(String scope);
 
 }

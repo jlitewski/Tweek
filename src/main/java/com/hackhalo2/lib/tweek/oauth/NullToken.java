@@ -27,7 +27,7 @@ public class NullToken implements IOAuthToken {
 	}
 
 	@Override
-	public boolean tokenHasScope(String scope) {
+	public boolean hasScope(String scope) {
 		// TODO Auto-generated method stub
 		return false;
 	}

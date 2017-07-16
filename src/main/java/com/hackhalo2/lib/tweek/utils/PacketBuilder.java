@@ -1,20 +1,25 @@
 package com.hackhalo2.lib.tweek.utils;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.hackhalo2.lib.tweek.exceptions.RestAPIException;
 import com.hackhalo2.lib.tweek.oauth.IOAuthToken;
 import com.hackhalo2.lib.tweek.twitch.endpoints.TwitchURLEndpoints;
 
@@ -55,18 +60,32 @@ public final class PacketBuilder {
 			this.requestClass = clazz;
 		}
 		
-		public <T> T sendRequest(String url, Class<T> clazz) {
-			byte[] result = this.sendRequestRaw(url, null);
-			return result == null ? null : this.serializeResult(result, clazz);
+		public <T> T sendRequest(String url, Class<T> clazz)
+				throws RestAPIException {
+			return this.sendRequest(url, clazz, null);
 		}
 		
-		public <T> T sendRequest(String url, Class<T> clazz, IOAuthToken token) {
+		public <T> T sendJSONRequest(String url, JsonNode json, Class<T> clazz)
+				throws RestAPIException {
+			return this.sendJSONRequest(url, json, clazz, null);
+		}
+		
+		public <T> T sendRequest(String url, Class<T> clazz, IOAuthToken token)
+				throws RestAPIException {
 			byte[] result = this.sendRequestRaw(url, token);
 			return result == null ? null : this.serializeResult(result, clazz);
 		}
 		
-		public byte[] sendRequestRaw(String url, IOAuthToken token) {
+		public <T> T sendJSONRequest(String url, JsonNode json, Class<T> clazz, IOAuthToken token)
+				throws RestAPIException {
+			byte[] result = this.sendJSONRequestRaw(url, json, token);
+			return result == null ? null : this.serializeResult(result, clazz);
+		}
+		
+		public byte[] sendRequestRaw(String url, IOAuthToken token)
+				throws RestAPIException {
 			byte[] data = new byte[0];
+			
 			try {
 				HttpUriRequest request = this.requestClass.getConstructor(String.class).newInstance(url);
 				request.addHeader(HttpHeaders.ACCEPT, this.apiHeader);
@@ -76,24 +95,52 @@ public final class PacketBuilder {
 				try(CloseableHttpResponse response = this.client.execute(request)) {
 					if(response.getEntity() != null)
 						data = EntityUtils.toByteArray(response.getEntity());
-				} catch (IOException e) {
-					//TODO: Complain and moan
+				} catch (Exception e) {
+					throw new IOException("There was a problem with handling the response data!", e);
 				}
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (Exception e) {
+				throw new RestAPIException("Tweek REST API Exception", e);
 			}
 			
 			return data;
 		}
 		
-		private <T> T serializeResult(byte[] result, Class<T> clazz) {
+		public byte[] sendJSONRequestRaw(String url, JsonNode json, IOAuthToken token)
+				throws RestAPIException {
+			byte[] data = new byte[0];
+			
+			try {
+				if(HttpEntityEnclosingRequestBase.class.isAssignableFrom(this.requestClass)) {
+					HttpEntityEnclosingRequestBase request = (HttpEntityEnclosingRequestBase)this.requestClass.getConstructor(String.class).newInstance(url);
+					request.addHeader(HttpHeaders.ACCEPT, this.apiHeader);
+					request.addHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+					if(this.clientID != null) request.addHeader("Client-ID", this.clientID);
+					if(token != null) request.addHeader(HttpHeaders.AUTHORIZATION, "OAuth " + token.getToken());
+					
+					HttpEntity entity = new StringEntity(TweekUtils.OBJMAP.writeValueAsString(json), "UTF-8");
+					request.setEntity(entity);
+					
+					try(CloseableHttpResponse response = this.client.execute(request)) {
+						if(response.getEntity() != null)
+							data = EntityUtils.toByteArray(response.getEntity());
+					} catch (Exception e) {
+						throw new IOException("There was a problem with handling the response data!", e);
+					}
+				} else {
+					throw new HttpException(String.format("Attempted to attach HttpEntity to invalid class! requestClass=%s", this.requestClass.getSimpleName()));
+				}
+			} catch (Exception e) {
+				throw new RestAPIException("Tweek REST API Exception", e);
+			}
+			
+			return data;
+		}
+		
+		private <T> T serializeResult(byte[] result, Class<T> clazz) throws RestAPIException {
 			try {
 				return TweekUtils.OBJMAP.readValue(result, clazz);
 			} catch(Exception e) {
-				//TODO: Log and bitch
-				return null;
+				throw new RestAPIException("Failed to serialize JSON result!", e);
 			}
 		}
 		
