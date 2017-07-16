@@ -41,7 +41,7 @@ public final class TwitchURLEndpoints {
 	 * <b>Scope <i>CHANNEL_FEED_EDIT</i> is needed for POST and DELETE requests</b><br />
 	 * Required input order: Channel_ID, Post_ID
 	 */
-	public static final String CHANFEED_POST = CHANFEED + "/%d";
+	public static final String CHANFEED_POST = CHANFEED + "/%s";
 	
 	/**
 	 * The formatted Endpoint for Reacting to a single Channels Feed Post<br />
@@ -49,7 +49,7 @@ public final class TwitchURLEndpoints {
 	 * <b>Scope <i>CHANNEL_FEED_EDIT</i> is needed</b><br />
 	 * Required input order: Channel_ID, Post_ID, Emote_ID
 	 */
-	public static final String CHANFEED_POST_REACT = CHANFEED_POST + "/reactions?emote_id=%d";
+	public static final String CHANFEED_POST_REACT = CHANFEED_POST + "/reactions?emote_id=%s";
 	
 	/**
 	 * The formatted Endpoint for Comments on a single Channels Feed Post<br />
@@ -65,7 +65,7 @@ public final class TwitchURLEndpoints {
 	 * <b>Scope <i>CHANNEL_FEED_EDIT</i> is needed</b><br />
 	 * Required input order: Channel_ID, Post_ID, Comment_ID
 	 */
-	public static final String CHANFEED_COMMENT = CHANFEED_COMMENTS + "/%d";
+	public static final String CHANFEED_COMMENT = CHANFEED_COMMENTS + "/%s";
 	
 	/**
 	 * The formatted Endpoint for Reacting to a single Comment on a Channels Feed Post<br />
@@ -73,7 +73,7 @@ public final class TwitchURLEndpoints {
 	 * <b>Scope <i>CHANNEL_FEED_EDIT</i> is needed</b><br />
 	 * Required input order: Channel_ID, Post_ID, Comment_ID, Emote_ID
 	 */
-	public static final String CHANFEED_COMMENT_REACT = CHANFEED_COMMENT + "/reactions?emote_id=%d";
+	public static final String CHANFEED_COMMENT_REACT = CHANFEED_COMMENT + "/reactions?emote_id=%s";
 	
 	/* ------------------------------------------------------------ *
 	 * ------------------------ Channels -------------------------- *

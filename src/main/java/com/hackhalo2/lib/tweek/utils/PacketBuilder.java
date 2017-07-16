@@ -73,13 +73,13 @@ public final class PacketBuilder {
 		public <T> T sendRequest(String url, Class<T> clazz, IOAuthToken token)
 				throws RestAPIException {
 			byte[] result = this.sendRequestRaw(url, token);
-			return result == null ? null : this.serializeResult(result, clazz);
+			return this.serializeResult(result, clazz);
 		}
 		
 		public <T> T sendJSONRequest(String url, JsonNode json, Class<T> clazz, IOAuthToken token)
 				throws RestAPIException {
 			byte[] result = this.sendJSONRequestRaw(url, json, token);
-			return result == null ? null : this.serializeResult(result, clazz);
+			return this.serializeResult(result, clazz);
 		}
 		
 		public byte[] sendRequestRaw(String url, IOAuthToken token)
@@ -138,6 +138,9 @@ public final class PacketBuilder {
 		
 		private <T> T serializeResult(byte[] result, Class<T> clazz) throws RestAPIException {
 			try {
+				if(result == null) return null;
+				if(result.length == 0) return null;
+				
 				return TweekUtils.OBJMAP.readValue(result, clazz);
 			} catch(Exception e) {
 				throw new RestAPIException("Failed to serialize JSON result!", e);

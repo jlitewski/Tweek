@@ -27,6 +27,9 @@ targetCompatibility = 1.8
 dependencies {
     // The production code uses the SLF4J logging API at compile time
     compile 'org.slf4j:slf4j-api:1.7.25'
+    
+    //Eclipse Enhanced Null Analysis
+    compile 'org.eclipse.jdt:org.eclipse.jdt.annotation:2.1.0'
 
 	//KICL for Twitch IRC
 	compile "org.kitteh.irc:client-lib:3.2.0"
@@ -42,7 +45,6 @@ dependencies {
 	compile "org.apache.commons:commons-lang3:3.6"
 	compile "org.apache.commons:commons-text:1.1"
 	compile "org.apache.commons:commons-collections4:4.1"
-	
 	
 	//Apache HTTP Stuff for REST
 	compile "org.apache.httpcomponents:httpcore:4.4.6"
