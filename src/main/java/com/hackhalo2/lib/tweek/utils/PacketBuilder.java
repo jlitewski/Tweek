@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -93,6 +94,8 @@ public final class PacketBuilder {
 				if(token != null) request.addHeader(HttpHeaders.AUTHORIZATION, "OAuth " + token.getToken());
 				
 				try(CloseableHttpResponse response = this.client.execute(request)) {
+					this.checkStatusCode(response.getStatusLine().getStatusCode());
+					
 					if(response.getEntity() != null)
 						data = EntityUtils.toByteArray(response.getEntity());
 				} catch (Exception e) {
@@ -121,6 +124,8 @@ public final class PacketBuilder {
 					request.setEntity(entity);
 					
 					try(CloseableHttpResponse response = this.client.execute(request)) {
+						this.checkStatusCode(response.getStatusLine().getStatusCode());
+						
 						if(response.getEntity() != null)
 							data = EntityUtils.toByteArray(response.getEntity());
 					} catch (Exception e) {
@@ -134,6 +139,41 @@ public final class PacketBuilder {
 			}
 			
 			return data;
+		}
+		
+		private void checkStatusCode(int statusCode) throws HttpResponseException {
+			String error = null;
+			switch(statusCode) {
+			case 400:
+				error = "Request Not Valid. Something is wrong with the request. Double check your code, and if it's correct, let the Dev know ASAP!";
+				break;
+			case 401:
+				error = "Unauthorized. The OAuth token does not have the correct scope or does not have the required permission on behalf of the specified user.";
+				break;
+			case 403:
+				error = "Forbidden. This usually indicates that authentication was provided, but the authenticated user is not permitted to perform the requested operation.";
+				break;
+			case 404:
+				error = "Not Found. It seems whatever you are looking for is in another castle.";
+				break;
+			case 422:
+				error = "Unprocessable Entity. Probably used an API endpoint for something that couldn't use it.";
+				break;
+			case 429:
+				error = "Too Many Requests. Slow down there Sonic.";
+				break;
+			case 500:
+				error = "Internal Server Error. Welp... Not much we can do with this one, Doc.";
+				break;
+			case 503:
+				error = "Service Unavailable. Gonna have to try again";
+				break;
+			default:
+				//Log the code for debugging purposes
+				break;
+			}
+			
+			if(error != null) throw new HttpResponseException(statusCode, error);
 		}
 		
 		private <T> T serializeResult(byte[] result, Class<T> clazz) throws RestAPIException {
