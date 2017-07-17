@@ -6,11 +6,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
 
 import com.hackhalo2.lib.tweek.exceptions.EndpointException;
+import com.hackhalo2.lib.tweek.exceptions.InvalidNullException;
+import com.hackhalo2.lib.tweek.exceptions.InvalidOAuthTokenException;
+import com.hackhalo2.lib.tweek.exceptions.MissingScopeException;
 import com.hackhalo2.lib.tweek.oauth.IOAuthToken;
+import com.hackhalo2.lib.tweek.twitch.TwitchScope;
+import com.hackhalo2.lib.tweek.twitch.jsonobjects.TwitchChannel;
 import com.hackhalo2.lib.tweek.twitch.jsonobjects.TwitchUser;
 import com.hackhalo2.lib.tweek.twitch.jsonobjects.TwitchUserList;
 import com.hackhalo2.lib.tweek.twitch.oauth.TwitchOAuthToken;
 import com.hackhalo2.lib.tweek.utils.PacketBuilder;
+import com.hackhalo2.lib.tweek.utils.TokenUtils;
 import com.hackhalo2.lib.tweek.utils.TweekUtils;
 
 class TwitchEndpointHandler {
@@ -81,7 +87,9 @@ class TwitchEndpointHandler {
 		TwitchUserList response = null;
 		try {
 			response = this.packets.GET.sendRequest(requestURL, TwitchUserList.class);
-			if(response._total > 1) {
+			if(response == null) {
+				return Optional.empty();
+			} else if(response._total > 1) {
 				//TODO: Log that there were more than one result
 			} else if(response._total < 1) {
 				//TODO: no users exist, log
@@ -114,10 +122,9 @@ class TwitchEndpointHandler {
 			users = builder.toString();
 		} else users = StringUtils.join(usernames, ",");
 
-		String requestURL = String.format(TwitchURLEndpoints.USERS_GET, users);
 		TwitchUserList response = null;
 		try {
-			response = this.packets.GET.sendRequest(requestURL, TwitchUserList.class);
+			response = this.packets.GET.sendRequest(String.format(TwitchURLEndpoints.USERS_GET, users), TwitchUserList.class);
 		} catch (Exception e) {
 			throw new EndpointException("There was a REST API issue!", e);
 		}
@@ -125,12 +132,23 @@ class TwitchEndpointHandler {
 		return Optional.ofNullable(response);
 	}
 
-	protected Optional<Long> getChannelIDforUsername(@NonNull String username) {
-		return null; //TODO
-	}
+	protected Optional<TwitchChannel> getChannel(@NonNull IOAuthToken token) throws EndpointException, MissingScopeException {
+		if(token == null) if(token == null) throw new InvalidNullException("OAuthToken cannot be null for ChannelFeedEndpointHandler.createFeedPost()!");
+		if(!this.isTwitchToken(token)) throw new InvalidOAuthTokenException("Incorrect OAuth Token passed!");
+		
+		if(!token.hasScope(TwitchScope.CHANNEL_READ.name())) {
+			throw new MissingScopeException("Scope '"+TwitchScope.CHANNEL_READ.name()+"' is missing from AuthToken! (Available scopes: "
+					+TokenUtils.formatHumanReadable(token.getScopes())+")", TwitchScope.CHANNEL_READ.name());
+		}
+		
+		TwitchChannel result = null;
+		try {
+			result = this.packets.GET.sendRequest(TwitchURLEndpoints.OAUTH_CHANNEL, TwitchChannel.class, token);
+		} catch (Exception e) {
+			throw new EndpointException("There was a REST API issue!", e);
+		}
 
-	protected Optional<Long> getChannelIDforUserID(long userid) {
-		return null; //TODO
+		return Optional.ofNullable(result);
 	}
 
 }
