@@ -83,6 +83,8 @@ class TwitchEndpointHandler {
 	 */
 	public Optional<TwitchUser> getUserfromUsername(@NonNull String username)
 			throws EndpointException {
+		if(username == null) throw new InvalidNullException("Username cannot be null for "+this.getClass().getSimpleName()+".getUserFromUsername()!");
+		
 		String requestURL = String.format(TwitchURLEndpoints.USERS_GET, username);
 		TwitchUserList response = null;
 		try {
@@ -110,8 +112,10 @@ class TwitchEndpointHandler {
 	 * @return The TwitchUserList Object for the array of usernames
 	 * @throws EndpointException 
 	 */
-	public Optional<TwitchUserList> getUsersfromUsernames(@NonNull String... usernames)
+	public Optional<TwitchUserList> getUsersFromUsernames(@NonNull String... usernames)
 			throws EndpointException {
+		if(usernames == null) throw new InvalidNullException("Username Array cannot be null for "+this.getClass().getSimpleName()+".getUsersFromUsernames()!");
+		
 		String users = null;
 		if(usernames.length > 100) {
 			StringBuilder builder = new StringBuilder();
@@ -132,8 +136,16 @@ class TwitchEndpointHandler {
 		return Optional.ofNullable(response);
 	}
 
-	protected Optional<TwitchChannel> getChannel(@NonNull IOAuthToken token) throws EndpointException, MissingScopeException {
-		if(token == null) if(token == null) throw new InvalidNullException("OAuthToken cannot be null for ChannelFeedEndpointHandler.createFeedPost()!");
+	/**
+	 * 
+	 * @param token
+	 * @return
+	 * @throws EndpointException
+	 * @throws MissingScopeException
+	 */
+	protected Optional<TwitchChannel> getChannel(@NonNull IOAuthToken token)
+			throws EndpointException, MissingScopeException {
+		if(token == null) if(token == null) throw new InvalidNullException("OAuthToken cannot be null for "+this.getClass().getSimpleName()+".getChannel()!");
 		if(!this.isTwitchToken(token)) throw new InvalidOAuthTokenException("Incorrect OAuth Token passed!");
 		
 		if(!token.hasScope(TwitchScope.CHANNEL_READ.name())) {
